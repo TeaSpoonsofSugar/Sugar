@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sugar to Teaspoon Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+            text-align: center;
+        }
+        .calculator {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .input-group input {
+            width: calc(100% - 20px);
+            padding: 8px 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .unit-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .unit-selector label {
+            margin: 0 10px;
+            font-size: 16px;
+            color: #555;
+        }
+        .unit-selector input {
+            margin-right: 5px;
+        }
+        .calculate-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .calculate-btn:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+        .sugar-visual {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .sugar-pile {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            margin: 5px;
+            border: 2px solid green;
+        }
+        .sugar-pile.fraction {
+            background: linear-gradient(to top, red calc(100% * var(--fraction)), white calc(100% * var(--fraction)));
+            border: 2px solid green;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <h1>Sugar to Teaspoon Calculator</h1>
+        
+        <div class="unit-selector">
+            <label>
+                <input type="radio" name="unit" value="grams" checked> Grams
+            </label>
+            <label>
+                <input type="radio" name="unit" value="ounces"> Ounces
+            </label>
+        </div>
+        
+        <div class="input-group">
+            <label for="sugarAmount">Enter amount of sugar:</label>
+            <input type="number" id="sugarAmount" placeholder="e.g., 20" min="0">
+        </div>
+        
+        <button class="calculate-btn" id="calculateButton">Calculate</button>
+        
+        <div class="result" id="result"></div>
+        <div class="sugar-visual" id="visual"></div>
+    </div>
+
+    <script>
+        document.getElementById('calculateButton').addEventListener('click', calculateTeaspoons);
+
+        // Handle the Enter key press for the input field
+        document.getElementById('sugarAmount').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission if inside a form
+                calculateTeaspoons();
+            }
+        });
+
+        function calculateTeaspoons() {
+            // Clear the existing visualization
+            document.getElementById('visual').innerHTML = '';
+
+            // Read the input value
+            const amountInput = document.getElementById('sugarAmount').value;
+            const amount = parseFloat(amountInput);
+            
+            // Validate the input
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a positive number for the sugar amount.');
+                return;
+            }
+
+            // Determine the unit selected
+            const unit = document.querySelector('input[name="unit"]:checked').value;
+            let teaspoons;
+
+            // Perform the conversion
+            if (unit === 'grams') {
+                teaspoons = amount / 4.2;
+            } else if (unit === 'ounces') {
+                teaspoons = amount / 0.148;
+            }
+
+            // Round to two decimal places
+            teaspoons = Math.round(teaspoons * 100) / 100;
+
+            // Display the result text
+            document.getElementById('result').innerHTML = `This is equivalent to <strong>${teaspoons}</strong> teaspoon(s) of sugar.`;
+
+            // Display visual representation of sugar piles
+            const visual = document.getElementById('visual');
+            const maxPilesToShow = 50;
+
+            const fullPiles = Math.floor(teaspoons);
+            const fraction = teaspoons - fullPiles;
+
+            for (let i = 0; i < Math.min(fullPiles, maxPilesToShow); i++) {
+                const sugarPileDiv = document.createElement('div');
+                sugarPileDiv.classList.add('sugar-pile');
+                visual.appendChild(sugarPileDiv);
+            }
+
+            if (fraction > 0 && fullPiles < maxPilesToShow) {
+                const sugarPileDiv = document.createElement('div');
+                sugarPileDiv.classList.add('sugar-pile', 'fraction');
+                sugarPileDiv.style.setProperty('--fraction', fraction);
+                visual.appendChild(sugarPileDiv);
+            }
+
+            // If the number of teaspoons exceeds what we want to show visually, add a message
+            if (teaspoons > maxPilesToShow) {
+                const moreText = document.createElement('div');
+                moreText.style.marginTop = '10px';
+                moreText.style.color = '#555';
+                moreText.textContent = `...and ${Math.round(teaspoons - maxPilesToShow)} more.`;
+                visual.appendChild(moreText);
+            }
+        }
+    </script>
+
+</body>
+</html>
